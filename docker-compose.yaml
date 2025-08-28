@@ -9,17 +9,34 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     ports:
       - 8080:8080
+
     volumes:
       - evolution_instances:/evolution/instances
     networks:
       - evolution-net
     env_file:
       - .env
+
     expose:
       - 8080
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:management
+    networks:
+      - evolution-net
+    environment:
+      - RABBITMQ_DEFAULT_USER=USER
+      - RABBITMQ_DEFAULT_PASS=PASSWORD
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+    ports:
+      - 5672:5672
+      - 15672:15672 # Puerto para la interfaz de gestión web
   redis:
     image: redis:latest
     networks:
@@ -87,6 +104,7 @@ volumes:
   evolution_instances:
   evolution_redis:
   postgres_data:
+  rabbitmq_data:
 
 
 networks:
